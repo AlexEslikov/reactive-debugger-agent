@@ -1,10 +1,11 @@
 plugins {
-    id 'java'
-    id 'org.jetbrains.kotlin.jvm' version '1.5.0'
+    id "java"
+    id "org.jetbrains.kotlin.jvm" version "1.5.0"
+    id "maven-publish"
 }
 
-group 'com.intellij.debugger'
-version '0.0.1'
+group "org.jetbrains.intellij.deps"
+version "0.0.1"
 
 repositories {
     mavenCentral()
@@ -15,10 +16,10 @@ dependencies {
     implementation "net.bytebuddy:byte-buddy-agent:1.11.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
-    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.7.9'
-    testImplementation 'com.google.code.gson:gson:2.8.6'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.1'
+    testImplementation "com.fasterxml.jackson.core:jackson-databind:2.7.9"
+    testImplementation "com.google.code.gson:gson:2.8.6"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.1"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.1"
 
     implementation "io.projectreactor:reactor-core:3.4.5"
     implementation "io.reactivex.rxjava3:rxjava:3.0.12"
@@ -33,4 +34,25 @@ compileKotlin {
 }
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+def githubProperties = new Properties()
+githubProperties.load(new FileInputStream(rootProject.file("github.properties")))
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/alexeslikov/reactive-debugger-agent")
+            credentials {
+                username = githubProperties["gpr.user"] ?: System.getenv("GITHUB_USERNAME")
+                password = githubProperties["gpr.key"] ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+    publications {
+        gpr(MavenPublication) {
+            from(components.java)
+        }
+    }
 }
