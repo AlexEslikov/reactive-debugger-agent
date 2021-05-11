@@ -3,6 +3,9 @@
 
 package com.intellij.debugger.streams.reactive.agent
 
+import com.intellij.debugger.streams.reactive.agent.lib.LibrarySupportProvider
+import com.intellij.debugger.streams.reactive.agent.lib.reactor.ReactorLibrarySupportProvider
+import com.intellij.debugger.streams.reactive.agent.lib.rxjava.RxJavaLibrarySupportProvider
 import net.bytebuddy.agent.ByteBuddyAgent
 import java.lang.instrument.Instrumentation
 import java.util.logging.Logger
@@ -50,15 +53,23 @@ object ReactiveDebuggerAgent {
         if (ReactiveDebuggerAgent::instrumentation.isInitialized) {
             return
         }
+        registerProviders()
         instrumentation = ByteBuddyAgent.install()
         instrument(instrumentation)
         LOG.info("Stream debugger agent initialized")
+    }
+
+    private fun registerProviders() {
+        LibrarySupportProvider.register(
+            listOf(ReactorLibrarySupportProvider(), RxJavaLibrarySupportProvider())
+        )
     }
 
     private fun instrument(instrumentation: Instrumentation) {
         val transformer = ClassTransformer()
         instrumentation.addTransformer(transformer, true)
     }
+
 
     /**
      * Re-process existing classes
