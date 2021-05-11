@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.intellij.debugger.streams.reactive.agent
 
+import com.intellij.debugger.streams.reactive.agent.lib.LibrarySupportProvider
 import net.bytebuddy.jar.asm.ClassVisitor
 import net.bytebuddy.jar.asm.MethodVisitor
 import net.bytebuddy.jar.asm.Opcodes
@@ -39,6 +40,21 @@ internal class ReactiveDebugClassVisitor(classVisitor: ClassVisitor, private val
         signature: String?,
         exceptions: Array<out String>?
     ): MethodVisitor {
-        return super.visitMethod(access, currentMethod, descriptor, signature, exceptions)
+        var methodVisitor = super.visitMethod(access, currentMethod, descriptor, signature, exceptions)
+
+        for (provider in LibrarySupportProvider.getProviders()) {
+            val methodVisitorFactory = provider.librarySupport.methodVisitorFactory
+            methodVisitor = methodVisitorFactory.getMethodVisitor(
+                methodVisitor,
+                provider.librarySupport,
+                currentClassName,
+                currentMethod,
+                descriptor,
+                currentFileName,
+                changed
+            )
+        }
+
+        return methodVisitor
     }
 }

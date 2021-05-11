@@ -10,6 +10,8 @@ import java.security.ProtectionDomain
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
+ * Transforms class files by applying [ReactiveDebugClassVisitor] to them
+ *
  * @author Aleksandr Eslikov
  */
 internal open class ClassTransformer : ClassFileTransformer {
