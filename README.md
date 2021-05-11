@@ -4,8 +4,8 @@ This is a java agent that allows you to collect
 information about data flowing through a reactive stream.
 
 #Using the agent in your projects
-The library is published to the GitHub packages repository.
 
+The library is published to the GitHub packages repository.
 
 ## From Gradle
 
